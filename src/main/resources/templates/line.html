@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+
+    <!-- 引入刚刚下载的 ECharts 文件 -->
+    <script src="/echarts/echarts.min.js"></script>
+    <script src="/echarts/china.js"></script>
+    <script src="/echarts/jquery-1.11.1.min.js"></script>
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}"  media="all">
+    <script th:src="@{/layui/layui.js}" charset="utf-8"></script>
+    <!--        类ui-->
+</head>
+<body>
+
+<!--这里是引用-->
+<div th:include="commonmenu :: menu">
+</div>
+
+<div class="layui-body">
+    <!-- 内容主体区域 -->
+    <div style="padding: 15px;">
+
+        <!-- 为 ECharts 准备一个定义了宽高的 DOM -->
+        <div id="main" style="width: 900px;height:700px;"></div>
+
+    </div>
+</div>
+<script type="text/javascript">
+    // 基于准备好的dom，初始化echarts实例
+    var myChart = echarts.init(document.getElementById('main'));
+    // 指定图表的配置项和数据
+   var dataList = [];
+
+    option = {
+        title: {
+            text: 'Stacked Line'
+        },
+        tooltip: {
+            trigger: 'axis'
+        },
+        legend: {
+            data: ['确诊人数', '隔离人数', '治愈人数', '死亡人数', '疑似人数']
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        toolbox: {
+            feature: {
+                saveAsImage: {}
+            }
+        },
+        xAxis: {
+            type: 'category',
+            boundaryGap: false,
+            data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        },
+        yAxis: {
+            type: 'value'
+        }
+    };
+    $.ajax({
+        url: "/queryline",
+        dataType: "json",
+        success: function (data) {
+            // 某种意义上来说，数组也是object
+            for (let i in data) {
+                dataList[i] = data[i];
+            }
+
+            myChart.setOption({
+                series: [
+                {
+                    name: '确诊人数',
+                    type: 'line',
+                    stack: 'Total',
+                    data: data.confimList
+                },
+                //     Map map=new HashMap();
+                // map.put("confirmList",confirmList);
+                // map.put("isolationList",isolationList );
+                // map.put(" cureList",cureList);
+                // map.put("deadList",deadList);
+                // map.put("similarList",similarList);
+                {
+                    name: '隔离人数',
+                    type: 'line',
+                    stack: 'Total',
+                    data: data.isolationList
+                },
+                {
+                    name: '治愈人数',
+                    type: 'line',
+                    stack: 'Total',
+                    data: data.cureList
+                },
+                {
+                    name: '死亡人数',
+                    type: 'line',
+                    stack: 'Total',
+                    data: data.deadList
+                },
+                {
+                    name: '疑似人数',
+                    type: 'line',
+                    stack: 'Total',
+                    data: data.similarList
+                }
+            ]
+            });
+        }
+    });
+
+    // 使用刚指定的配置项和数据显示图表。
+    myChart.setOption(option);
+</script>
+</body>
+</html>
